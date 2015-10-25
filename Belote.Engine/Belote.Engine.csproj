@@ -41,9 +41,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Carte.cs" />
-    <Compile Include="Helpers.cs" />
+    <Compile Include="CartesExtensions.cs" />
     <Compile Include="Joueur.cs" />
+    <Compile Include="Paire.cs" />
+    <Compile Include="Paquet.cs" />
     <Compile Include="Partie.cs" />
+    <Compile Include="Prise.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

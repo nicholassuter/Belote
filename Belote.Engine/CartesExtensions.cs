@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Belote.Engine
 {
-    public static class Helpers
+    public static class CartesExtensions
     {
         public static void Melanger(this List<Carte> cartes)
         {
@@ -19,6 +19,15 @@ namespace Belote.Engine
                 cartes[k] = cartes[n];
                 cartes[n] = value;
             }
+        }
+
+        public static List<Carte> Couper(this List<Carte> cartes)
+        {
+            var random = new Random();
+            int index = random.Next(4, cartes.Count - 4);
+            var premierTas = cartes.Take(index);
+            var deuxiemeTas = cartes.Skip(index).Take(cartes.Count);
+            return deuxiemeTas.Concat(premierTas).ToList();
         }
     }
 }

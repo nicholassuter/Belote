@@ -1,75 +1,157 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Belote.Engine
 {
     public class Partie
     {
-        private List<Joueur> _joueurs;
+
+
+        private readonly int _nbPointsMax;
+        private readonly List<Joueur> _joueurs;
+        private readonly Paire _nous, _eux;
         private Joueur _donneur;
-        private Tuple<Joueur, Joueur> _nous, _eux;
-        
+        private Joueur _preneur;
+        private Joueur _joueurCourant;
+        private List<Carte> _cartes;
+        private Couleur _atout;
 
-        public static List<Carte> Cartes = new List<Carte>
+        public Partie(int nbPointsMax, Joueur joueurOuest, Joueur joueurNord, Joueur joueurEst, Joueur joueurSud)
         {
-            new Carte(Valeur.Sept, Couleur.Pique),
-            new Carte(Valeur.Huit, Couleur.Pique),
-            new Carte(Valeur.Neuf, Couleur.Pique),
-            new Carte(Valeur.Dix, Couleur.Pique),
-            new Carte(Valeur.Valet, Couleur.Pique),
-            new Carte(Valeur.Dame, Couleur.Pique),
-            new Carte(Valeur.Roi, Couleur.Pique),
-            new Carte(Valeur.As, Couleur.Pique),
-            new Carte(Valeur.Sept, Couleur.Coeur),
-            new Carte(Valeur.Huit, Couleur.Coeur),
-            new Carte(Valeur.Neuf, Couleur.Coeur),
-            new Carte(Valeur.Dix, Couleur.Coeur),
-            new Carte(Valeur.Valet, Couleur.Coeur),
-            new Carte(Valeur.Dame, Couleur.Coeur),
-            new Carte(Valeur.Roi, Couleur.Coeur),
-            new Carte(Valeur.As, Couleur.Coeur),
-            new Carte(Valeur.Sept, Couleur.Carreau),
-            new Carte(Valeur.Huit, Couleur.Carreau),
-            new Carte(Valeur.Neuf, Couleur.Carreau),
-            new Carte(Valeur.Dix, Couleur.Carreau),
-            new Carte(Valeur.Valet, Couleur.Carreau),
-            new Carte(Valeur.Dame, Couleur.Carreau),
-            new Carte(Valeur.Roi, Couleur.Carreau),
-            new Carte(Valeur.As, Couleur.Carreau),
-            new Carte(Valeur.Sept, Couleur.Trefle),
-            new Carte(Valeur.Huit, Couleur.Trefle),
-            new Carte(Valeur.Neuf, Couleur.Trefle),
-            new Carte(Valeur.Dix, Couleur.Trefle),
-            new Carte(Valeur.Valet, Couleur.Trefle),
-            new Carte(Valeur.Dame, Couleur.Trefle),
-            new Carte(Valeur.Roi, Couleur.Trefle),
-            new Carte(Valeur.As, Couleur.Trefle),
-        }; 
-
-        public Partie(Joueur joueurOuest, Joueur joueurNord, Joueur joueurEst, Joueur joueurSud)
-        {
+            _nbPointsMax = nbPointsMax;
             _joueurs = new List<Joueur>
             {
                 joueurOuest,
-                joueurNord,
+                joueurSud,
                 joueurEst,
-                joueurSud
+                joueurNord,
             };
 
-            _nous = new Tuple<Joueur, Joueur>(joueurNord, joueurSud);
-            _eux = new Tuple<Joueur, Joueur>(joueurOuest, joueurSud);
+            _nous = new Paire(joueurNord, joueurSud);
+            _eux = new Paire(joueurOuest, joueurEst);
+            _cartes = new List<Carte>(Paquet.TrenteDeuxCartes);
+            _cartes.Melanger();
         }
 
-        public void Demarrer()
+        public void JouerPartie()
         {
-            Cartes.Melanger();
-            DonnerPremiereMain(Cartes);
+            _donneur = ChoisirDonneur(_joueurs);
+
+            while (_eux.Score < _nbPointsMax && _nous.Score < _nbPointsMax)
+            {
+                JouerTour();
+                _donneur = GetJoueurSuivant(_donneur);
+            }
+
         }
 
-        private void DonnerPremiereMain(List<Carte> cartes)
+        private void JouerTour()
         {
-            
+            _cartes.Couper();
+            DonnerPremiereMain(_cartes, _donneur);
+            Carte vire = GetCartes(1, _cartes).First();
+            _joueurCourant = GetJoueurSuivant(_donneur);
+            Prise prise = GetPrise(vire);
+
+            if (prise == null) return;
+
+            _preneur = prise.Preneur;
+            _atout = prise.Couleur;
+
+            DonnerDeuxiemeMain(_cartes, _donneur);
+
+            while (_joueurs[0].Cartes.Count > 0)
+            {
+                JouerPli(_preneur, _donneur);
+            }
+        }
+
+        private void JouerPli(Joueur preneur, Joueur donneur)
+        {
+            var pli = new Dictionary<Joueur, Carte>();
+            Couleur? couleurDemandee = null;
+            for (int i = 0; i < 4; i++)
+            {
+                Carte carte = _joueurCourant.GetCarteAJouer(pli, couleurDemandee);
+                pli.Add(_joueurCourant, carte);
+                if (i == 0)
+                {
+                    couleurDemandee = carte.Couleur;
+                }
+                _joueurCourant = GetJoueurSuivant(_joueurCourant);
+            }
+
+
+        }
+
+        private Prise GetPrise(Carte vire)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Joueur j = GetJoueurSuivant(_donneur);
+                Prise p = j.GetPrise(vire, 1);
+                if (p != null) return p;
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                Joueur j = GetJoueurSuivant(_donneur);
+                Prise p = j.GetPrise(vire, 2);
+                if (p != null) return p;
+            }
+
+            return null;
+        }
+
+        private Joueur ChoisirDonneur(List<Joueur> joueurs)
+        {
+            var r = new Random();
+            int i = r.Next(_joueurs.Count);
+            return joueurs[i];
+        }
+
+        private void DonnerPremiereMain(List<Carte> cartes, Joueur donneur)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Joueur prochainJoueur = GetJoueurSuivant(donneur);
+                IEnumerable<Carte> cartesADonner = GetCartes(3, cartes);
+                prochainJoueur.Cartes.AddRange(cartesADonner);
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                Joueur prochainJoueur = GetJoueurSuivant(donneur);
+                IEnumerable<Carte> cartesADonner = GetCartes(2, cartes);
+                prochainJoueur.Cartes.AddRange(cartesADonner);
+            }
+        }
+
+        private void DonnerDeuxiemeMain(List<Carte> cartes, Joueur donneur)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Joueur prochainJoueur = GetJoueurSuivant(donneur);
+
+                IEnumerable<Carte> cartesADonner = GetCartes(prochainJoueur == _preneur ? 2 : 3, cartes);
+                prochainJoueur.Cartes.AddRange(cartesADonner);
+            }
+        }
+
+        private Joueur GetJoueurSuivant(Joueur joueurCourant)
+        {
+            int positionJoueurCourant = _joueurs.FindIndex(j => j == joueurCourant);
+            int positionProchainJoueur = (positionJoueurCourant + 1) % _joueurs.Count;
+            return _joueurs[positionProchainJoueur];
+        }
+
+        private IEnumerable<Carte> GetCartes(int nbCartes, List<Carte> cartes)
+        {
+            IEnumerable<Carte> cartesADonner = cartes.Take(nbCartes);
+            cartes.RemoveRange(0, nbCartes);
+
+            return cartesADonner;
         }
     }
 }
