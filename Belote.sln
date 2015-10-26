@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Belote.Engine", "Belote.Engine\Belote.Engine.csproj", "{2EAE5236-5998-44CD-B7B5-F6FADE0121FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Belote.Engine.Tests", "Belote.Engine.Tests\Belote.Engine.Tests.csproj", "{8AD529EC-4939-46AC-B3BF-15FAE0672424}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2EAE5236-5998-44CD-B7B5-F6FADE0121FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EAE5236-5998-44CD-B7B5-F6FADE0121FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EAE5236-5998-44CD-B7B5-F6FADE0121FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EAE5236-5998-44CD-B7B5-F6FADE0121FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AD529EC-4939-46AC-B3BF-15FAE0672424}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AD529EC-4939-46AC-B3BF-15FAE0672424}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AD529EC-4939-46AC-B3BF-15FAE0672424}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AD529EC-4939-46AC-B3BF-15FAE0672424}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
